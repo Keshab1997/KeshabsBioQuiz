@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ইন্টার‍্যাকটিভ বায়োলজি কুইজ - সেট ৪</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .dark-mode {
+            background-color: #333;
+            color: #fff;
+        }
+        .blue-theme {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+        }
+        .green-theme {
+            background-color: #e8f5e9;
+            color: #1b5e20;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .dark-mode .container {
+            background: #444;
+        }
+        .blue-theme .container {
+            background: #bbdefb;
+        }
+        .green-theme .container {
+            background: #c8e6c9;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .dark-mode h1 {
+            color: #fff;
+        }
+        .blue-theme h1 {
+            color: #0d47a1;
+        }
+        .green-theme h1 {
+            color: #1b5e20;
+        }
+        .question {
+            margin: 20px 0;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideIn 0.5s forwards;
+        }
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .options {
+            display: grid;
+            gap: 10px;
+        }
+        .option {
+            padding: 10px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .option:hover {
+            background-color: #e0e0e0;
+        }
+        .dark-mode .option:hover {
+            background-color: #555;
+        }
+        .blue-theme .option:hover {
+            background-color: #90caf9;
+        }
+        .green-theme .option:hover {
+            background-color: #a5d6a7;
+        }
+        .correct {
+            background-color: #28a745 !important;
+            color: white;
+        }
+        .wrong {
+            background-color: #dc3545 !important;
+            color: white;
+        }
+        .feedback {
+            margin-top: 10px;
+            font-style: italic;
+            display: none;
+        }
+        #score, #timer, #progress-label, #result-label {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        #progress, #result-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        #progress-bar {
+            height: 100%;
+            background: #28a745;
+            width: 0;
+            transition: width 0.3s;
+        }
+        #result-bar {
+            display: flex;
+        }
+        #correct-bar {
+            height: 100%;
+            background: #28a745;
+            width: 0;
+            transition: width 0.3s;
+        }
+        #wrong-bar {
+            height: 100%;
+            background: #dc3545;
+            width: 0;
+            transition: width 0.3s;
+        }
+        #pending-bar {
+            height: 100%;
+            background: #ccc;
+            width: 100%;
+            transition: width 0.3s;
+        }
+        #retry-btn, #home-btn, .nav-btn {
+            display: block;
+            margin: 10px auto;
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #007bff, #00c4ff);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            text-decoration: none;
+        }
+        #retry-btn:hover, #home-btn:hover, .nav-btn:hover {
+            transform: scale(1.05);
+        }
+        #leaderboard {
+            margin-top: 20px;
+            display: none;
+        }
+        #leaderboard table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        #leaderboard th, #leaderboard td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+        #numQuestions, #themeSelect {
+            display: block;
+            margin: 10px auto;
+            padding: 5px;
+            font-size: 1em;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            .options {
+                grid-template-columns: 1fr;
+            }
+            #retry-btn, #home-btn, .nav-btn {
+                width: 80%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ইন্টার‍্যাকটিভ বায়োলজি কুইজ - সেট ৪</h1>
+        <select id="numQuestions">
+            <option value="5">৫টি প্রশ্ন</option>
+            <option value="all" selected>সব প্রশ্ন</option>
+        </select>
+        <select id="themeSelect">
+            <option value="light">লাইট থিম</option>
+            <option value="dark">ডার্ক থিম</option>
+            <option value="blue">ব্লু থিম</option>
+            <option value="green">গ্রিন থিম</option>
+        </select>
+        <div id="timer">Time: 00:00</div>
+        <div id="score">Score: 0 / 6</div>
+        <div id="progress-label">Progress</div>
+        <div id="progress"><div id="progress-bar"></div></div>
+        <div id="result-label">Results: Correct (Green) | Wrong (Red) | Pending (Gray)</div>
+        <div id="result-bar">
+            <div id="correct-bar"></div>
+            <div id="wrong-bar"></div>
+            <div id="pending-bar"></div>
+        </div>
+        <div id="quiz"></div>
+        <div id="leaderboard">
+            <h3>লিডারবোর্ড</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>নাম</th>
+                        <th>স্কোর</th>
+                        <th>সময় (সেকেন্ড)</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body"></tbody>
+            </table>
+        </div>
+        <button id="retry-btn" style="display: none;">Retry Quiz</button>
+        <button id="home-btn" onclick="window.location.href='index.html'">হোম</button>
+        <a href="readme.html" class="nav-btn">থিওরি</a>
+        <a href="quiz.html" class="nav-btn">কুইজ হোম</a>
+        <a href="set1.html" class="nav-btn">পেজ ১ (S1)</a>
+        <a href="set2.html" class="nav-btn">পেজ ২ (S2)</a>
+        <a href="set3.html" class="nav-btn">পেজ ৩ (S3)</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        const questions = [
+            {
+                question: "ইন্ডোল অ্যাসিটিক অ্যাসিড (IAA) কোন উদ্ভিদ হরমোনের রাসায়নিক নাম?",
+                options: ["কাইনিন", "অক্সিন", "জিব্বেরেলিন", "ইথিলিন"],
+                correct: 1,
+                explanation: "IAA (Indole-3-acetic acid) হলো অক্সিন শ্রেণির প্রধান প্রাকৃতিক হরমোন, যা কোষের বৃদ্ধি ও নমনীয়তা নিয়ন্ত্রণ করে।"
+            },
+            {
+                question: "নিচের কোনটি আগাছা দমনে সাহায্যকারী হরমোন?",
+                options: ["২,৪-ডি", "এন.এ.এ", "IBA", "IAA"],
+                correct: 0,
+                explanation: "২,৪-ডি (2,4-Dichlorophenoxyacetic acid) একটি কৃত্রিম অক্সিন যা আগাছা দমনে ব্যবহৃত হয়।"
+            },
+            {
+                question: "“খুড়া সুবেদী হরমোন” কোনটি?",
+                options: ["অক্সিন", "এন.এ.এ", "IAA", "ABA"],
+                correct: 3,
+                explanation: "ABA (Abscisic Acid) খরা প্রতিরোধী হরমোন হিসেবে পরিচিত, তাই একে “খুড়া সুবেদী হরমোন” বলা হয়।"
+            },
+            {
+                question: "“ফ্লোরিজেন” নামকরণ করেন—",
+                options: ["ক্লিল্যান্ড", "বাটলার", "চাইলাখান", "ব্যাটেলস"],
+                correct: 2,
+                explanation: "১৯৩৭ সালে সোভিয়েত বিজ্ঞানী মিখাইল চাইলাখান “ফ্লোরিজেন” শব্দটি প্রস্তাব করেন, যা ফুল ফোটার সংকেতবাহী হরমোন।"
+            },
+            {
+                question: "কোন হরমোন প্রয়োগে অগ্রস্থ প্রকটতা প্রতিরোধ হয়?",
+                options: ["অক্সিন", "ভার্নালিন", "জিব্বেরেলিন", "সাইটোকাইনিন"],
+                correct: 3,
+                explanation: "সাইটোকাইনিন পার্শ্বীয় কুঁড়ির বৃদ্ধি উদ্দীপিত করে এবং অক্সিনের প্রভাবকে প্রতিহত করে, ফলে অগ্রস্থ প্রকটতা হ্রাস পায়।"
+            },
+            {
+                question: "নিচের কোনটি কৃত্রিম হরমোন?",
+                options: ["IBA", "IAA", "ক্লোরো ডিজাইন", "ভার্নালিন"],
+                correct: 0,
+                explanation: "IBA (Indole-3-butyric acid) একটি কৃত্রিম অক্সিন যা মূল গজাতে ব্যবহৃত হয়। IAA প্রাকৃতিক, ক্লোরো ডিজাইন ও ভার্নালিন তত্ত্বগত বা সংশয়যুক্ত।"
+            }
+        ];
+
+        let score = 0;
+        let wrongAnswers = 0;
+        let answeredQuestions = 0;
+        let timerInterval;
+        let seconds = 0;
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                seconds++;
+                const minutes = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                document.getElementById('timer').textContent = `Time: ${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function speakCorrect() {
+            const utterance = new SpeechSynthesisUtterance('সঠিক');
+            utterance.lang = 'bn-BD';
+            utterance.rate = 1;
+            speechSynthesis.speak(utterance);
+        }
+
+        function speakWrong() {
+            const utterance = new SpeechSynthesisUtterance('ভুল');
+            utterance.lang = 'bn-BD';
+            utterance.rate = 1;
+            speechSynthesis.speak(utterance);
+        }
+
+        function displayQuestion() {
+            const num = document.getElementById('numQuestions').value;
+            const selectedQuestions = num === 'all' ? shuffle([...questions]) : shuffle([...questions]).slice(0, parseInt(num));
+            const quizDiv = document.getElementById('quiz');
+            quizDiv.innerHTML = '';
+            selectedQuestions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.innerHTML = `<h3>${index + 1}. ${q.question}</h3>`;
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'options';
+                q.options.forEach((option, i) => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'option';
+                    optionDiv.textContent = option;
+                    optionDiv.onclick = () => checkAnswer(index, i, optionDiv, q, selectedQuestions);
+                    optionsDiv.appendChild(optionDiv);
+                });
+                const feedbackDiv = document.createElement('div');
+                feedbackDiv.className = 'feedback';
+                feedbackDiv.id = `feedback-${index}`;
+                feedbackDiv.style.display = 'none';
+                questionDiv.appendChild(optionsDiv);
+                questionDiv.appendChild(feedbackDiv);
+                quizDiv.appendChild(questionDiv);
+            });
+            document.getElementById('score').textContent = `Score: 0 / ${selectedQuestions.length}`;
+            updateProgress(selectedQuestions);
+            startTimer();
+        }
+
+        function checkAnswer(questionIndex, selectedIndex, element, q, selectedQuestions) {
+            const feedbackDiv = document.getElementById(`feedback-${questionIndex}`);
+            const options = element.parentElement.children;
+            for (let option of options) {
+                option.style.pointerEvents = 'none';
+            }
+            if (selectedIndex === q.correct) {
+                element.classList.add('correct');
+                feedbackDiv.innerHTML = `<b>সঠিক!</b> Correct Answer: ${q.options[q.correct]}.<br>${q.explanation}`;
+                feedbackDiv.style.color = '#28a745';
+                feedbackDiv.style.display = 'block';
+                score++;
+                speakCorrect();
+            } else {
+                element.classList.add('wrong');
+                feedbackDiv.innerHTML = `<b>ভুল!</b> Correct Answer: ${q.options[q.correct]}.<br>${q.explanation}`;
+                feedbackDiv.style.color = '#dc3545';
+                feedbackDiv.style.display = 'block';
+                wrongAnswers++;
+                speakWrong();
+            }
+            answeredQuestions++;
+            document.getElementById('score').textContent = `Score: ${score} / ${selectedQuestions.length}`;
+            updateProgress(selectedQuestions);
+            if (answeredQuestions === selectedQuestions.length) {
+                clearInterval(timerInterval);
+                if (score / selectedQuestions.length >= 0.8) {
+                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                }
+                document.getElementById('retry-btn').style.display = 'block';
+                saveToLeaderboard();
+                document.getElementById('leaderboard').style.display = 'block';
+            }
+        }
+
+        function updateProgress(selectedQuestions) {
+            const progress = (answeredQuestions / selectedQuestions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+            const correctPercent = (score / selectedQuestions.length) * 100;
+            const wrongPercent = (wrongAnswers / selectedQuestions.length) * 100;
+            const pendingPercent = ((selectedQuestions.length - answeredQuestions) / selectedQuestions.length) * 100;
+            document.getElementById('correct-bar').style.width = `${correctPercent}%`;
+            document.getElementById('wrong-bar').style.width = `${wrongPercent}%`;
+            document.getElementById('pending-bar').style.width = `${pendingPercent}%`;
+        }
+
+        function saveToLeaderboard() {
+            const name = prompt('আপনার নাম লিখুন:') || 'অজ্ঞাত';
+            const leaderboard = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+            leaderboard.push({ name, score, time: seconds });
+            leaderboard.sort((a, b) => b.score - a.score || a.time - b.time);
+            localStorage.setItem('leaderboard', JSON.stringify(leaderboard.slice(0, 10)));
+            displayLeaderboard();
+        }
+
+        function displayLeaderboard() {
+            const leaderboard = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+            const tbody = document.getElementById('leaderboard-body');
+            tbody.innerHTML = '';
+            leaderboard.forEach(entry => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${entry.name}</td><td>${entry.score}</td><td>${entry.time}</td>`;
+                tbody.appendChild(row);
+            });
+        }
+
+        document.getElementById('retry-btn').onclick = () => {
+            localStorage.setItem('quizScore', score);
+            localStorage.setItem('quizTime', seconds);
+            score = 0;
+            wrongAnswers = 0;
+            answeredQuestions = 0;
+            seconds = 0;
+            document.getElementById('score').textContent = `Score: 0 / ${questions.length}`;
+            document.getElementById('timer').textContent = `Time: 00:00`;
+            document.getElementById('retry-btn').style.display = 'none';
+            document.getElementById('leaderboard').style.display = 'none';
+            document.getElementById('correct-bar').style.width = '0%';
+            document.getElementById('wrong-bar').style.width = '0%';
+            document.getElementById('pending-bar').style.width = '100%';
+            clearInterval(timerInterval);
+            displayQuestion();
+        };
+
+        document.getElementById('themeSelect').onchange = () => {
+            const theme = document.getElementById('themeSelect').value;
+            document.body.className = '';
+            if (theme !== 'light') document.body.classList.add(`${theme}-theme`);
+        };
+
+        document.getElementById('numQuestions').onchange = displayQuestion;
+
+        window.onload = () => {
+            const savedScore = localStorage.getItem('quizScore');
+            const savedTime = localStorage.getItem('quizTime');
+            if (savedScore && savedTime) {
+                document.getElementById('score').innerHTML += `<br>Last Score: ${savedScore} / ${questions.length}, Time: ${Math.floor(savedTime / 60)}:${(savedTime % 60).toString().padStart(2, '0')}`;
+            }
+            displayLeaderboard();
+            displayQuestion();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ইন্টার‍্যাকটিভ বায়োলজি কুইজ - সেট ২</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .dark-mode {
+            background-color: #333;
+            color: #fff;
+        }
+        .blue-theme {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+        }
+        .green-theme {
+            background-color: #e8f5e9;
+            color: #1b5e20;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .dark-mode .container {
+            background: #444;
+        }
+        .blue-theme .container {
+            background: #bbdefb;
+        }
+        .green-theme .container {
+            background: #c8e6c9;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .dark-mode h1 {
+            color: #fff;
+        }
+        .blue-theme h1 {
+            color: #0d47a1;
+        }
+        .green-theme h1 {
+            color: #1b5e20;
+        }
+        .question {
+            margin: 20px 0;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideIn 0.5s forwards;
+        }
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .options {
+            display: grid;
+            gap: 10px;
+        }
+        .option {
+            padding: 10px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .option:hover {
+            background-color: #e0e0e0;
+        }
+        .dark-mode .option:hover {
+            background-color: #555;
+        }
+        .blue-theme .option:hover {
+            background-color: #90caf9;
+        }
+        .green-theme .option:hover {
+            background-color: #a5d6a7;
+        }
+        .correct {
+            background-color: #28a745 !important;
+            color: white;
+        }
+        .wrong {
+            background-color: #dc3545 !important;
+            color: white;
+        }
+        .feedback {
+            margin-top: 10px;
+            font-style: italic;
+            display: none;
+        }
+        #score, #timer, #progress-label, #result-label {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        #progress, #result-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        #progress-bar {
+            height: 100%;
+            background: #28a745;
+            width: 0;
+            transition: width 0.3s;
+        }
+        #result-bar {
+            display: flex;
+        }
+        #correct-bar {
+            height: 100%;
+            background: #28a745;
+            width: 0;
+            transition: width 0.3s;
+        }
+        #wrong-bar {
+            height: 100%;
+            background: #dc3545;
+            width: 0;
+            transition: width 0.3s;
+        }
+        #pending-bar {
+            height: 100%;
+            background: #ccc;
+            width: 100%;
+            transition: width 0.3s;
+        }
+        #retry, #toggle-theme, #home-btn, .nav-btn {
+            display: block;
+            margin: 10px auto;
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #007bff, #00c4ff);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        #retry:hover, #toggle-theme:hover, #home-btn:hover, .nav-btn:hover {
+            transform: scale(1.05);
+        }
+        #leaderboard {
+            margin-top: 20px;
+            display: none;
+        }
+        #leaderboard table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        #leaderboard th, #leaderboard td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            .options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ইন্টার‍্যাকটিভ বায়োলজি কুইজ - সেট ২</h1>
+        <select id="numQuestions">
+            <option value="5">৫টি প্রশ্ন</option>
+            <option value="10" selected>১০টি প্রশ্ন</option>
+            <option value="all">সব প্রশ্ন</option>
+        </select>
+        <select id="themeSelect">
+            <option value="light">লাইট থিম</option>
+            <option value="dark">ডার্ক থিম</option>
+            <option value="blue">ব্লু থিম</option>
+            <option value="green">গ্রিন থিম</option>
+        </select>
+        <div id="timer">Time: 00:00</div>
+        <div id="score">Score: 0 / 11</div>
+        <div id="progress-label">Progress</div>
+        <div id="progress"><div id="progress-bar"></div></div>
+        <div id="result-label">Results: Correct (Green) | Wrong (Red) | Pending (Gray)</div>
+        <div id="result-bar">
+            <div id="correct-bar"></div>
+            <div id="wrong-bar"></div>
+            <div id="pending-bar"></div>
+        </div>
+        <div id="quiz"></div>
+        <div id="leaderboard">
+            <h3>লিডারবোর্ড</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>নাম</th>
+                        <th>স্কোর</th>
+                        <th>সময় (সেকেন্ড)</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body"></tbody>
+            </table>
+        </div>
+        <button id="retry" style="display: none;">Retry Quiz</button>
+        <button id="home-btn" onclick="window.location.href='index.html'">হোম</button>
+        <a href="readme.html" class="nav-btn">থিওরি</a>
+        <a href="quiz.html" class="nav-btn">কুইজ হোম</a>
+        <a href="set1.html" class="nav-btn">পেজ ১ (S1)</a>
+        <a href="set3.html" class="nav-btn">পেজ ৩ (S3)</a>
+        <a href="set4.html" class="nav-btn">পেজ ৪ (S4)</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        const questions = [
+            {
+                question: "ভ্রূণমুকুলাবরিণীতে পাওয়া যায়—",
+                options: ["জীব", "বোরোলিন", "অক্সিন", "সাইটোকাইনিন"],
+                correct: 2,
+                explanation: "ভ্রূণমুকুলাবরিণী বা এম্ব্রিওস্যাকে অক্সিন পাওয়া যায়, যা ডিম্বাণুর বিকাশে সহায়তা করে।"
+            },
+            {
+                question: "নাইট্রোজেন বিহীন উদ্ভিদ হরমোন হলো—",
+                options: ["জিব্বরেলিন", "অক্সিন", "সাইটোকাইনিন", "ভারনালিন"],
+                correct: 0,
+                explanation: "জিব্বরেলিন একটি নাইট্রোজেনবিহীন উদ্ভিদ হরমোন যা কোষের প্রসারণ ও বীজ অঙ্কুরোদগমে সহায়তা করে।"
+            },
+            {
+                question: "বীজবিহীন ফল উৎপাদনে সাহায্য করে—",
+                options: ["ইথিলিন", "অক্সিন", "সাইটোকাইনিন", "ফ্লোরোজিন"],
+                correct: 1,
+                explanation: "অক্সিন ফলের বিকাশে সহায়তা করে এমনকি নিষিক্তকরণ ছাড়াও, ফলে পার্থেনোকার্পিক (বীজবিহীন) ফল উৎপন্ন হয়।"
+            },
+            {
+                question: "_______ এর মাধ্যমে বামনতা নিয়ন্ত্রণ করা যায়—",
+                options: ["সাইটোকাইনিন", "ইথিলিন", "জিবেরেলিক অ্যাসিড", "অক্সিন"],
+                correct: 2,
+                explanation: "জিবেরেলিক অ্যাসিড কোষের প্রসারণ ঘটিয়ে বামনতা দূর করে উদ্ভিদের উচ্চতা বৃদ্ধি করে।"
+            },
+            {
+                question: "উদ্ভিদের সর্বজনীন প্রাকৃতিক অক্সিন হলো—",
+                options: ["IBA", "সেট্রিক অক্সিন", "NAA", "IAA"],
+                correct: 3,
+                explanation: "IAA (Indole-3-acetic acid) হলো উদ্ভিদের মধ্যে প্রাকৃতিকভাবে উৎপন্ন প্রধান অক্সিন।"
+            },
+            {
+                question: "নিচের কোনটি প্রাণীদের মধ্যে হরমোন নয়?",
+                options: ["ইনসুলিন", "অক্সিন", "থাইরক্সিন", "অ্যাড্রেনালিন"],
+                correct: 1,
+                explanation: "অক্সিন একটি উদ্ভিদ হরমোন, যা প্রাণীদেহে পাওয়া যায় না। বাকি তিনটি প্রাণীদেহে উৎপন্ন হয়।"
+            },
+            {
+                question: "নিচের কোন উদ্ভিদের হরমোন বৃদ্ধিতে বাধা দেয় এবং পাতা ঝরে যাওয়ার জন্য দায়ী?",
+                options: ["জিবেরেলিন", "সাইটোকাইনিন", "অ্যাবসিসিক অ্যাসিড", "অক্সিন"],
+                correct: 2,
+                explanation: "অ্যাবসিসিক অ্যাসিড একটি বৃদ্ধি রোধকারী হরমোন যা পাতাঝরা ও বীজের সুপ্তাবস্থার জন্য দায়ী।"
+            },
+            {
+                question: "কোষ বিভাজনের সাথে সম্পর্কিত হরমোন হলো—",
+                options: ["হাইড্রাইজাইড", "জিবেরেলিন", "অক্সিন", "সাইটোকাইনিন"],
+                correct: 3,
+                explanation: "সাইটোকাইনিন কোষ বিভাজনকে উদ্দীপিত করে এবং কলাস গঠনে সহায়তা করে।"
+            },
+            {
+                question: "ফাইটো হরমোন কী?",
+                options: ["খোসা ছাড়ানোর জন্য ব্যবহৃত রাসায়নিক", "রোগ নিয়ন্ত্রণকারী পদার্থ", "ফটোসিন্থেসিসের জন্য ব্যবহৃত পদার্থ", "শারীরবৃত্তীয় প্রক্রিয়াগুলিকে প্রভাবিত করে উদ্ভিদ দ্বারা সংশ্লেষিত নিয়ন্ত্রক"],
+                correct: 3,
+                explanation: "ফাইটো হরমোন হলো উদ্ভিদের নিজস্বভাবে উৎপন্ন রাসায়নিক যা বৃদ্ধি, বিকাশ ও প্রতিক্রিয়াকে নিয়ন্ত্রণ করে।"
+            },
+            {
+                question: "উদ্ভিদের কোষের বৃদ্ধি এবং কোষ বিভাজন প্রচার করে—",
+                options: ["সাইটোকাইনিন", "অ্যাবসিসিক অ্যাসিড", "জিবেরেলিন", "অক্সিন"],
+                correct: 0,
+                explanation: "সাইটোকাইনিন কোষ বিভাজন ও কোষ বৃদ্ধিতে সহায়তা করে, বিশেষ করে কলাস ও অঙ্গজ বিকাশে।"
+            },
+            {
+                question: "নিচের কোনটি স্টোমাটা বন্ধ করতে এবং পাতার বিলুপ্তিতে সাহায্য করে?",
+                options: ["অ্যাবসিসিক অ্যাসিড", "জিবেরেলিন", "অক্সিন", "সাইটোকাইনিন"],
+                correct: 0,
+                explanation: "অ্যাবসিসিক অ্যাসিড জলঘাটতির সময় স্টোমাটা বন্ধ করে জল সংরক্ষণে সহায়তা করে এবং পাতাঝরার কারণ হয়।"
+            }
+        ];
+
+        let score = 0;
+        let wrongAnswers = 0;
+        let answeredQuestions = 0;
+        let timerInterval;
+        let seconds = 0;
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                seconds++;
+                const minutes = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                document.getElementById('timer').textContent = `Time: ${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function speakCorrect() {
+            const utterance = new SpeechSynthesisUtterance('সঠিক');
+            utterance.lang = 'bn-BD';
+            utterance.rate = 1;
+            speechSynthesis.speak(utterance);
+        }
+
+        function speakWrong() {
+            const utterance = new SpeechSynthesisUtterance('ভুল');
+            utterance.lang = 'bn-BD';
+            utterance.rate = 1;
+            speechSynthesis.speak(utterance);
+        }
+
+        function displayQuestion() {
+            const num = document.getElementById('numQuestions').value;
+            const selectedQuestions = num === 'all' ? shuffle([...questions]) : shuffle([...questions]).slice(0, parseInt(num));
+            const quizDiv = document.getElementById('quiz');
+            quizDiv.innerHTML = '';
+            selectedQuestions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.innerHTML = `<h3>${index + 1}. ${q.question}</h3>`;
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'options';
+                q.options.forEach((option, i) => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'option';
+                    optionDiv.textContent = option;
+                    optionDiv.onclick = () => checkAnswer(index, i, optionDiv, q, selectedQuestions);
+                    optionsDiv.appendChild(optionDiv);
+                });
+                const feedbackDiv = document.createElement('div');
+                feedbackDiv.className = 'feedback';
+                feedbackDiv.id = `feedback-${index}`;
+                feedbackDiv.style.display = 'none';
+                questionDiv.appendChild(optionsDiv);
+                questionDiv.appendChild(feedbackDiv);
+                quizDiv.appendChild(questionDiv);
+            });
+            document.getElementById('score').textContent = `Score: 0 / ${selectedQuestions.length}`;
+            updateProgress(selectedQuestions);
+            startTimer();
+        }
+
+        function checkAnswer(questionIndex, selectedIndex, element, q, selectedQuestions) {
+            const feedbackDiv = document.getElementById(`feedback-${questionIndex}`);
+            const options = element.parentElement.children;
+            for (let option of options) {
+                option.style.pointerEvents = 'none';
+            }
+            if (selectedIndex === q.correct) {
+                element.classList.add('correct');
+                feedbackDiv.innerHTML = `<b>সঠিক!</b> Correct Answer: ${q.options[q.correct]}.<br>${q.explanation}`;
+                feedbackDiv.style.color = '#28a745';
+                feedbackDiv.style.display = 'block';
+                score++;
+                speakCorrect();
+            } else {
+                element.classList.add('wrong');
+                feedbackDiv.innerHTML = `<b>ভুল!</b> Correct Answer: ${q.options[q.correct]}.<br>${q.explanation}`;
+                feedbackDiv.style.color = '#dc3545';
+                feedbackDiv.style.display = 'block';
+                wrongAnswers++;
+                speakWrong();
+            }
+            answeredQuestions++;
+            document.getElementById('score').textContent = `Score: ${score} / ${selectedQuestions.length}`;
+            updateProgress(selectedQuestions);
+            if (answeredQuestions === selectedQuestions.length) {
+                clearInterval(timerInterval);
+                if (score / selectedQuestions.length >= 0.8) {
+                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                }
+                document.getElementById('retry').style.display = 'block';
+                saveToLeaderboard();
+                document.getElementById('leaderboard').style.display = 'block';
+            }
+        }
+
+        function updateProgress(selectedQuestions) {
+            const progress = (answeredQuestions / selectedQuestions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+            const correctPercent = (score / selectedQuestions.length) * 100;
+            const wrongPercent = (wrongAnswers / selectedQuestions.length) * 100;
+            const pendingPercent = ((selectedQuestions.length - answeredQuestions) / selectedQuestions.length) * 100;
+            document.getElementById('correct-bar').style.width = `${correctPercent}%`;
+            document.getElementById('wrong-bar').style.width = `${wrongPercent}%`;
+            document.getElementById('pending-bar').style.width = `${pendingPercent}%`;
+        }
+
+        function saveToLeaderboard() {
+            const name = prompt('আপনার নাম লিখুন:') || 'অজ্ঞাত';
+            const leaderboard = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+            leaderboard.push({ name, score, time: seconds });
+            leaderboard.sort((a, b) => b.score - a.score || a.time - b.time);
+            localStorage.setItem('leaderboard', JSON.stringify(leaderboard.slice(0, 10)));
+            displayLeaderboard();
+        }
+
+        function displayLeaderboard() {
+            const leaderboard = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+            const tbody = document.getElementById('leaderboard-body');
+            tbody.innerHTML = '';
+            leaderboard.forEach(entry => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${entry.name}</td><td>${entry.score}</td><td>${entry.time}</td>`;
+                tbody.appendChild(row);
+            });
+        }
+
+        document.getElementById('retry').onclick = () => {
+            localStorage.setItem('quizScore', score);
+            localStorage.setItem('quizTime', seconds);
+            score = 0;
+            wrongAnswers = 0;
+            answeredQuestions = 0;
+            seconds = 0;
+            document.getElementById('score').textContent = `Score: 0 / ${questions.length}`;
+            document.getElementById('timer').textContent = `Time: 00:00`;
+            document.getElementById('retry').style.display = 'none';
+            document.getElementById('leaderboard').style.display = 'none';
+            document.getElementById('correct-bar').style.width = '0%';
+            document.getElementById('wrong-bar').style.width = '0%';
+            document.getElementById('pending-bar').style.width = '100%';
+            clearInterval(timerInterval);
+            displayQuestion();
+        };
+
+        document.getElementById('themeSelect').onchange = () => {
+            const theme = document.getElementById('themeSelect').value;
+            document.body.className = '';
+            if (theme !== 'light') document.body.classList.add(`${theme}-theme`);
+        };
+
+        document.getElementById('numQuestions').onchange = displayQuestion;
+
+        window.onload = () => {
+            const savedScore = localStorage.getItem('quizScore');
+            const savedTime = localStorage.getItem('quizTime');
+            if (savedScore && savedTime) {
+                document.getElementById('score').innerHTML += `<br>Last Score: ${savedScore} / ${questions.length}, Time: ${Math.floor(savedTime / 60)}:${(savedTime % 60).toString().padStart(2, '0')}`;
+            }
+            displayLeaderboard();
+            displayQuestion();
+        };
+    </script>
+</body>
+</html>
